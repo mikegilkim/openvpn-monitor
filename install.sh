@@ -47,20 +47,24 @@ fi
 echo -e "${BLUE}[2/4]${NC} Installing dependencies..."
 if ! command -v bc &> /dev/null; then
     apt-get update -qq
-    apt-get install -y bc > /dev/null 2>&1
-    echo -e "${GREEN}✓ Installed bc${NC}"
+    apt-get install -y bc wget > /dev/null 2>&1
+    echo -e "${GREEN}✓ Installed dependencies${NC}"
 else
     echo -e "${GREEN}✓ Dependencies already installed${NC}"
 fi
 
 # Download the dashboard script
-echo -e "${BLUE}[3/4]${NC} Installing OpenVPN monitor dashboard..."
+echo -e "${BLUE}[3/4]${NC} Downloading OpenVPN monitor dashboard..."
 
-cat > /usr/local/bin/vpn-dashboard << 'VPN_EOF'
-[DASHBOARD_SCRIPT_CONTENT_GOES_HERE]
-VPN_EOF
+wget -q https://raw.githubusercontent.com/mikegilkim/openvpn-monitor/main/vpn-dashboard.sh -O /usr/local/bin/vpn-dashboard
 
-echo -e "${GREEN}✓ Dashboard script installed${NC}"
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ Dashboard script downloaded${NC}"
+else
+    echo -e "${RED}✗ Failed to download dashboard script${NC}"
+    echo -e "${YELLOW}Check if the file exists at: https://github.com/mikegilkim/openvpn-monitor${NC}"
+    exit 1
+fi
 
 # Make executable
 chmod +x /usr/local/bin/vpn-dashboard
